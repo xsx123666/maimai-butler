@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦麦月报</title>
+<style>
+  /* ============================================================
+     麦麦智能管家 · 月度饮食报告卡片模板
+     设计语言：麦当劳红黄 + 复古像素风 + Wrapped 式纵版排版
+     数据注入：<script id="maimai-data" type="application/json"> 中的
+              /*__MAIMAI_DATA__*/null 由 scripts/render_card.py 替换
+     ============================================================ */
+  :root{
+    --mcd-red:#DA1A32;
+    --mcd-red-deep:#A3122A;
+    --mcd-red-dark:#7A0E20;
+    --mcd-yellow:#FFC72C;
+    --mcd-yellow-deep:#F5A623;
+    --cream:#FFF6E0;
+    --ink:#1A0A0C;
+    --ink-soft:rgba(26,10,12,.55);
+    --card-w:460px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:#150709;}
+  body{
+    display:flex;justify-content:center;
+    padding:28px 16px 40px;
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num-font{font-family:"DIN Alternate","Arial Black","Impact",system-ui,sans-serif;letter-spacing:.5px;}
+
+  /* ---------- 卡片主体 ---------- */
+  .card{
+    position:relative;width:100%;max-width:var(--card-w);
+    border-radius:22px;overflow:hidden;
+    border:3px solid var(--mcd-yellow);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,199,44,.13) 1px, transparent 1.6px) 0 0/18px 18px,
+      linear-gradient(165deg,#B01B33 0%,#8E1226 46%,#5E0A19 100%);
+    box-shadow:0 0 0 7px rgba(26,10,12,.9), 0 26px 70px rgba(0,0,0,.55);
+    animation:cardIn .6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes cardIn{from{transform:translateY(18px) scale(.98)}to{transform:none}}
+
+  /* DEMO 角标（仅演示数据时显示） */
+  .demo-badge{
+    display:none;position:absolute;top:16px;right:-38px;z-index:9;
+    transform:rotate(38deg);
+    background:var(--cream);color:var(--mcd-red);
+    font-weight:900;font-size:12px;letter-spacing:2px;
+    padding:5px 44px;border:2px solid var(--ink);
+  }
+  .card.is-demo .demo-badge{display:block;}
+
+  /* ---------- 顶部品牌区 ---------- */
+  .masthead{position:relative;padding:34px 30px 6px;text-align:center;}
+  .spark{position:absolute;opacity:.9;}
+  .spark svg{display:block;animation:twinkle 2.4s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.08)}}
+  .spark.s1{left:26px;top:40px;}
+  .spark.s2{right:30px;top:96px;animation-delay:.6s;}
+  .spark.s3{left:52px;top:130px;animation-delay:1.2s;}
+
+  .arch{width:84px;margin:0 auto 10px;filter:drop-shadow(0 6px 0 rgba(26,10,12,.35));}
+  .brand-name{color:var(--cream);font-size:21px;font-weight:900;letter-spacing:4px;}
+  .brand-sub{
+    margin-top:8px;display:inline-block;
+    color:var(--mcd-yellow);font-size:11px;font-weight:700;letter-spacing:3px;
+    border-top:2px dashed rgba(255,199,44,.5);border-bottom:2px dashed rgba(255,199,44,.5);
+    padding:5px 2px;
+  }
+
+  /* ---------- 月份标题条 ---------- */
+  .month-bar{
+    margin:22px 30px 0;
+    background:var(--mcd-yellow);
+    border:3px solid var(--ink);
+    border-radius:14px;
+    box-shadow:0 6px 0 rgba(26,10,12,.75);
+    padding:14px 18px;text-align:center;
+    transform:rotate(-.6deg);
+  }
+  .month-bar .month-num{color:var(--mcd-red);font-size:32px;font-weight:900;line-height:1.1;letter-spacing:2px;}
+  .month-bar .month-cap{color:var(--ink);font-size:12px;font-weight:800;letter-spacing:6px;margin-top:4px;}
+
+  /* ---------- 主数据区 ---------- */
+  .hero{padding:30px 30px 4px;text-align:center;color:var(--cream);}
+  .hero .hero-lead{font-size:14px;font-weight:600;opacity:.92;letter-spacing:1px;}
+  .hero .hero-spend{
+    margin:10px 0 2px;color:var(--mcd-yellow);
+    font-size:76px;font-weight:900;line-height:1;
+    -webkit-text-stroke:2.5px var(--ink);
+    text-shadow:5px 6px 0 rgba(26,10,12,.55);
+  }
+  .hero .hero-spend .cny{font-size:34px;vertical-align:18px;margin-right:4px;-webkit-text-stroke-width:2px;}
+  .hero .hero-meta{margin-top:12px;font-size:13px;font-weight:600;opacity:.9;}
+  .hero .hero-meta b{color:var(--mcd-yellow);font-weight:900;}
+
+  /* ---------- 数据网格 ---------- */
+  .stats{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    padding:24px 30px 6px;
+  }
+  .stat{
+    background:rgba(26,10,12,.35);
+    border:2px solid rgba(255,199,44,.45);
+    border-radius:14px;padding:14px 16px 12px;
+  }
+  .stat .v{color:var(--mcd-yellow);font-size:27px;font-weight:900;line-height:1.15;}
+  .stat .v small{font-size:14px;margin-left:2px;}
+  .stat .k{margin-top:5px;color:rgba(255,246,224,.82);font-size:12px;font-weight:600;letter-spacing:1px;}
+
+  /* ---------- TOP3 ---------- */
+  .top3{padding:24px 30px 2px;}
+  .sec-title{
+    display:flex;align-items:center;gap:8px;
+    color:var(--cream);font-size:15px;font-weight:900;letter-spacing:1px;
+    margin-bottom:14px;
+  }
+  .sec-title .pix{flex:none;}
+  .fav{
+    display:flex;align-items:center;gap:12px;
+    background:rgba(255,246,224,.07);
+    border:2px solid rgba(255,246,224,.16);
+    border-radius:14px;padding:10px 12px;margin-bottom:10px;
+  }
+  .fav .rank{
+    flex:none;width:34px;height:34px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:900;
+    background:rgba(255,246,224,.14);color:var(--cream);
+    border:2px solid rgba(255,246,224,.25);
+  }
+  .fav.r1 .rank{background:var(--mcd-yellow);color:var(--mcd-red);border-color:var(--ink);box-shadow:0 3px 0 rgba(26,10,12,.6);}
+  .fav .thumb{
+    flex:none;width:42px;height:42px;border-radius:10px;object-fit:cover;
+    background:rgba(255,246,224,.1);border:2px solid rgba(255,199,44,.4);
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+  }
+  .fav .body{flex:1;min-width:0;}
+  .fav .name{color:var(--cream);font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .fav .sub{margin-top:3px;color:rgba(255,246,224,.66);font-size:12px;font-weight:600;}
+  .fav .sub b{color:var(--mcd-yellow);font-weight:900;}
+  .fav .kcal{flex:none;text-align:right;color:var(--mcd-yellow);font-size:13px;font-weight:900;}
+  .fav .kcal span{display:block;color:rgba(255,246,224,.55);font-size:10px;font-weight:600;letter-spacing:1px;margin-top:2px;}
+
+  /* ---------- 冷知识 ---------- */
+  .facts{padding:18px 30px 6px;}
+  .fact-box{
+    border:2px dashed rgba(255,199,44,.6);
+    border-radius:14px;padding:14px 16px;
+    background:rgba(255,199,44,.07);
+  }
+  .fact-box .ft{color:var(--mcd-yellow);font-size:12px;font-weight:900;letter-spacing:3px;margin-bottom:8px;}
+  .fact-box li{
+    list-style:none;color:var(--cream);font-size:13.5px;font-weight:600;line-height:1.75;
+    display:flex;gap:8px;
+  }
+  .fact-box li::before{content:"✦";color:var(--mcd-yellow);flex:none;}
+
+  /* ---------- 底部 ---------- */
+  .card-foot{
+    margin-top:22px;padding:16px 30px 24px;text-align:center;
+    border-top:2px solid rgba(255,199,44,.22);
+  }
+  .slogan{
+    display:inline-block;color:var(--mcd-yellow);
+    font-size:16px;font-weight:900;letter-spacing:3px;font-style:italic;
+    -webkit-text-stroke:.6px var(--ink);
+  }
+  .foot-note{margin-top:8px;color:rgba(255,246,224,.55);font-size:11px;letter-spacing:1px;}
+
+  /* 未匹配提示 */
+  .unmatched{display:none;margin:14px 30px 0;padding:10px 14px;border-radius:12px;
+    background:rgba(255,246,224,.08);border:2px dashed rgba(255,246,224,.3);
+    color:rgba(255,246,224,.75);font-size:11.5px;line-height:1.7;}
+  .card.has-unmatched .unmatched{display:block;}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="demo-badge">DEMO</div>
+
+  <!-- 顶部品牌区 -->
+  <div class="masthead">
+    <span class="spark s1" id="spark1"></span>
+    <span class="spark s2" id="spark2"></span>
+    <span class="spark s3" id="spark3"></span>
+    <div class="arch" id="arch"></div>
+    <div class="brand-name">麦麦智能管家</div>
+    <div class="brand-sub">MCD · MONTHLY REPORT</div>
+  </div>
+
+  <!-- 月份标题条 -->
+  <div class="month-bar">
+    <div class="month-num" id="monthLabel">—</div>
+    <div class="month-cap">你的麦麦月报</div>
+  </div>
+
+  <!-- 主数据：总消费 -->
+  <div class="hero">
+    <div class="hero-lead">这个月你在麦麦一共花了</div>
+    <div class="hero-spend num-font"><span class="cny">¥</span><span id="totalSpend">0</span></div>
+    <div class="hero-meta">共下 <b id="orderCount">0</b> 单 · 平均每单 <b id="avgPerOrder">¥0</b></div>
+  </div>
+
+  <!-- 数据网格 -->
+  <div class="stats">
+    <div class="stat"><div class="v num-font" id="totalKcal">0<small>kcal</small></div><div class="k">🔥 总热量</div></div>
+    <div class="stat"><div class="v num-font" id="totalProtein">0<small>g</small></div><div class="k">💪 总蛋白质</div></div>
+    <div class="stat"><div class="v num-font" id="orderCount2">0<small>次</small></div><div class="k">🍔 下单次数</div></div>
+    <div class="stat"><div class="v num-font" id="points">0</div><div class="k">⭐ 麦享会积分</div></div>
+  </div>
+
+  <!-- TOP3 心头好 -->
+  <div class="top3">
+    <div class="sec-title"><span class="pix" id="pix-star"></span>你的麦麦心头好 TOP3</div>
+    <div id="favList"></div>
+  </div>
+
+  <!-- 冷知识 -->
+  <div class="facts" id="factsWrap">
+    <div class="fact-box">
+      <div class="ft">✨ 麦麦冷知识</div>
+      <ul id="factList"></ul>
+    </div>
+  </div>
+
+  <!-- 营养暂缺提示 -->
+  <div class="unmatched" id="unmatchedBox"></div>
+
+  <!-- 底部 -->
+  <div class="card-foot">
+    <div class="slogan">i'm lovin' it</div>
+    <div class="foot-note" id="footNote">麦麦智能管家 · 生成于 —</div>
+  </div>
+</div>
+
+<!-- ================= 数据（由 render_card.py 注入） ================= -->
+<script id="maimai-data" type="application/json">/*__MAIMAI_DATA__*/null</script>
+
+<!-- ================= 渲染逻辑 ================= -->
+<script>
+(function(){
+  var DATA = null;
+  try { DATA = JSON.parse(document.getElementById('maimai-data').textContent); } catch(e){}
+
+  /* ---------- 像素图形工具 ---------- */
+  var PIXEL_COLORS = { '1': null, '2': null, '3': null }; // 由调用处提供色板
+  function pixelSvg(pattern, colors, px, klass){
+    var rows = pattern.length, cols = pattern[0].length;
+    var svg = '<svg class="'+(klass||'')+'" width="'+(cols*px)+'" height="'+(rows*px)+'" viewBox="0 0 '+(cols*px)+' '+(rows*px)+'" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">';
+    for (var r=0;r<rows;r++){
+      for (var c=0;c<cols;c++){
+        var ch = pattern[r][c];
+        if (ch === '.') continue;
+        var col = colors[ch];
+        if (!col) continue;
+        svg += '<rect x="'+(c*px)+'" y="'+(r*px)+'" width="'+px+'" height="'+px+'" fill="'+col+'"/>';
+      }
+    }
+    return svg + '</svg>';
+  }
+
+  // 像素闪光（twinkle star）
+  var SPARK = [ "..1..", "..1..", "11111", "..1..", "..1.." ];
+  var SPARK_COLORS = { '1':'#FFC72C' };
+  ['spark1','spark2','spark3'].forEach(function(id,i){
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = pixelSvg(SPARK, SPARK_COLORS, i===1?4:5);
+  });
+  // 小标题旁的像素星
+  var starEl = document.getElementById('pix-star');
+  if (starEl) starEl.innerHTML = pixelSvg(["..1..",".111.","11111",".111.","..1.."], {'1':'#FFC72C'}, 3);
+
+  /* ---------- 金拱门 ---------- */
+  var archSvg =
+    '<svg viewBox="0 0 122 82" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFDD66"/><stop offset=".55" stop-color="#FFC72C"/><stop offset="1" stop-color="#F0A81E"/>' +
+      '</linearGradient></defs>' +
+      '<path d="M20,76 L20,42 Q20,12 41,12 Q60,12 62,42 L62,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<path d="M60,76 L60,42 Q62,12 81,12 Q102,12 102,42 L102,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<rect x="12" y="72" width="98" height="6" rx="3" fill="#F0A81E" opacity=".75"/>' +
+    '</svg>';
+  document.getElementById('arch').innerHTML = archSvg;
+
+  /* ---------- 数据填充 ---------- */
+  if (!DATA){
+    document.getElementById('footNote').textContent = '（数据未注入：请用 render_card.py 生成）';
+    return;
+  }
+  var card = document.getElementById('card');
+  if (DATA.isDemo) card.classList.add('is-demo');
+
+  function $(id){ return document.getElementById(id); }
+  function fmtMoney(v){ return (Math.round(v*100)/100).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
+  function fmtInt(v){ return String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+
+  var s = DATA.summary || {};
+  $('monthLabel').textContent = DATA.monthLabel || '—';
+  $('totalSpend').textContent = fmtMoney(s.totalSpend || 0);
+  $('orderCount').textContent = s.orderCount || 0;
+  $('orderCount2').textContent = s.orderCount || 0;
+  $('avgPerOrder').textContent = '¥' + fmtMoney(s.avgPerOrder || 0);
+  $('totalKcal').innerHTML = fmtInt(s.totalKcal || 0) + '<small>kcal</small>';
+  $('totalProtein').innerHTML = fmtInt(s.totalProtein || 0) + '<small>g</small>';
+  $('points').textContent = fmtInt((DATA.points && DATA.points.available) || 0);
+
+  /* TOP3 列表 */
+  function pickEmoji(name){
+    var n = String(name||'');
+    if (/可乐|雪碧|咖啡|奶|茶|汁|水|饮|麦旋酷/.test(n)) return '🥤';
+    if (/薯条|薯片/.test(n)) return '🍟';
+    if (/冰淇淋|新地|旋风|圆筒|派|拉明顿/.test(n)) return '🍦';
+    if (/鸡|翅/.test(n)) return '🍗';
+    if (/卷|粥|肠|蛋/.test(n)) return '🌯';
+    return '🍔';
+  }
+  var favWrap = $('favList');
+  var favs = (DATA.favoriteItems || []).slice(0,3);
+  if (!favs.length){
+    favWrap.innerHTML = '<div class="fav"><div class="body"><div class="name" style="opacity:.6">这个月还没有常点记录</div></div></div>';
+  } else {
+    favWrap.innerHTML = favs.map(function(f, i){
+      var emoji = pickEmoji(f.name);
+      var thumb = f.image
+        ? '<img class="thumb" src="'+esc(f.image)+'" alt="" onerror="this.outerHTML=\'<div class=&quot;thumb&quot;>'+emoji+'</div>\'">'
+        : '<div class="thumb">'+emoji+'</div>';
+      var kcal = (typeof f.kcal === 'number' && f.kcal > 0) ? ('<div class="kcal num-font">'+fmtInt(f.kcal)+'<span>kcal/份</span></div>') : '';
+      return '<div class="fav '+(i===0?'r1':'')+'">' +
+        '<div class="rank num-font">'+(i+1)+'</div>' + thumb +
+        '<div class="body"><div class="name">'+esc(f.name)+'</div>' +
+        '<div class="sub">点过 <b>'+fmtInt(f.count||0)+'</b> 次'+(typeof f.protein==='number'&&f.protein>0?' · 每份蛋白 '+f.protein+'g':'')+'</div></div>' +
+        kcal + '</div>';
+    }).join('');
+  }
+
+  /* 冷知识 */
+  var facts = DATA.funFacts || [];
+  var factWrap = $('factsWrap');
+  if (!facts.length){ factWrap.style.display='none'; }
+  else { $('factList').innerHTML = facts.map(function(t){ return '<li><span>'+esc(t)+'</span></li>'; }).join(''); }
+
+  /* 营养暂缺 */
+  var un = DATA.unmatched || [];
+  if (un.length){
+    card.classList.add('has-unmatched');
+    $('unmatchedBox').innerHTML = '⚠️ 以下餐品未匹配到营养数据（未计入热量合计）：' + un.map(esc).join('、');
+  }
+
+  $('footNote').textContent = '麦麦智能管家 · 生成于 ' + (DATA.generatedAt || '—') + (DATA.isDemo ? ' · 演示数据' : ' · 数据来自你的真实订单');
+})();
+</script>
+</body>
+</html>

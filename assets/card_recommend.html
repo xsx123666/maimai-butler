@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦麦健康推荐</title>
+<style>
+  /* ============================================================
+     麦麦智能管家 · 健康餐推荐卡片模板
+     数据注入：<script id="maimai-data"> 中的 /*__MAIMAI_DATA__*/null
+     ============================================================ */
+  :root{
+    --mcd-red:#DA1A32; --mcd-red-deep:#A3122A; --mcd-red-dark:#7A0E20;
+    --mcd-yellow:#FFC72C; --mcd-yellow-deep:#F5A623;
+    --cream:#FFF6E0; --ink:#1A0A0C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:#150709;}
+  body{
+    display:flex;justify-content:center;padding:28px 16px 40px;
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num-font{font-family:"DIN Alternate","Arial Black","Impact",system-ui,sans-serif;letter-spacing:.5px;}
+  .card{
+    position:relative;width:100%;max-width:460px;border-radius:22px;overflow:hidden;
+    border:3px solid var(--mcd-yellow);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,199,44,.13) 1px, transparent 1.6px) 0 0/18px 18px,
+      linear-gradient(165deg,#B01B33 0%,#8E1226 46%,#5E0A19 100%);
+    box-shadow:0 0 0 7px rgba(26,10,12,.9), 0 26px 70px rgba(0,0,0,.55);
+    animation:cardIn .6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes cardIn{from{transform:translateY(18px) scale(.98)}to{transform:none}}
+
+  /* 顶部品牌 */
+  .masthead{padding:30px 30px 0;text-align:center;}
+  .arch{width:64px;margin:0 auto 8px;filter:drop-shadow(0 5px 0 rgba(26,10,12,.35));}
+  .brand-name{color:var(--cream);font-size:19px;font-weight:900;letter-spacing:4px;}
+  .brand-sub{margin-top:6px;color:var(--mcd-yellow);font-size:11px;font-weight:700;letter-spacing:3px;}
+
+  /* 目标标签 */
+  .goal-wrap{padding:20px 30px 0;text-align:center;}
+  .goal{
+    display:inline-block;background:var(--mcd-yellow);color:var(--mcd-red);
+    font-size:22px;font-weight:900;letter-spacing:2px;
+    padding:10px 26px;border-radius:14px;border:3px solid var(--ink);
+    box-shadow:0 5px 0 rgba(26,10,12,.7);transform:rotate(-1deg);
+  }
+  .store-line{
+    margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+    color:rgba(255,246,224,.85);font-size:12.5px;font-weight:600;
+    background:rgba(26,10,12,.32);border:2px solid rgba(255,199,44,.35);
+    border-radius:999px;padding:7px 16px;
+  }
+
+  /* 组合卡片 */
+  .combos{padding:22px 30px 4px;}
+  .combo{
+    position:relative;margin-bottom:16px;
+    background:rgba(255,246,224,.07);
+    border:2px solid rgba(255,199,44,.45);
+    border-radius:16px;padding:16px;
+  }
+  .combo.best{background:rgba(255,199,44,.1);border-color:var(--mcd-yellow);}
+  .tier{
+    position:absolute;top:-11px;left:14px;
+    background:rgba(255,246,224,.16);color:var(--cream);
+    font-size:11px;font-weight:900;letter-spacing:2px;
+    border:2px solid rgba(255,246,224,.3);border-radius:8px;padding:2px 10px;
+  }
+  .combo.best .tier{background:var(--mcd-yellow);color:var(--mcd-red);border-color:var(--ink);box-shadow:0 2px 0 rgba(26,10,12,.6);}
+  .combo .title{color:var(--cream);font-size:17px;font-weight:900;letter-spacing:1px;margin-top:4px;}
+  .combo .why{margin-top:4px;color:rgba(255,246,224,.66);font-size:12px;font-weight:600;}
+  .items{list-style:none;margin-top:12px;}
+  .items li{
+    display:flex;align-items:baseline;gap:8px;
+    padding:6px 0;border-bottom:1px dashed rgba(255,246,224,.16);
+    color:var(--cream);font-size:13.5px;font-weight:600;
+  }
+  .items li:last-child{border-bottom:none;}
+  .items .iname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .items .imeta{flex:none;color:rgba(255,246,224,.55);font-size:11.5px;font-weight:600;}
+  .items .iprice{flex:none;color:var(--mcd-yellow);font-size:12.5px;font-weight:900;}
+  .pills{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .pill{
+    background:rgba(26,10,12,.38);border:2px solid rgba(255,199,44,.4);
+    color:var(--cream);font-size:12px;font-weight:700;
+    border-radius:999px;padding:4px 12px;
+  }
+  .pill b{color:var(--mcd-yellow);font-weight:900;}
+  .pricerow{
+    display:flex;align-items:center;gap:10px;margin-top:12px;
+    padding-top:12px;border-top:2px solid rgba(255,199,44,.25);
+  }
+  .orig{color:rgba(255,246,224,.5);font-size:13px;text-decoration:line-through;font-weight:600;}
+  .final{color:var(--mcd-yellow);font-size:30px;font-weight:900;line-height:1;}
+  .final small{font-size:16px;margin-right:2px;}
+  .save{
+    margin-left:auto;flex:none;
+    background:var(--mcd-red);border:2px solid var(--ink);
+    color:var(--cream);font-size:12px;font-weight:900;letter-spacing:1px;
+    border-radius:10px;padding:5px 12px;box-shadow:0 3px 0 rgba(26,10,12,.6);
+  }
+  .save.none{background:rgba(255,246,224,.14);border-color:rgba(255,246,224,.25);color:rgba(255,246,224,.7);box-shadow:none;}
+
+  /* 底部 */
+  .card-foot{margin-top:20px;padding:16px 30px 24px;text-align:center;border-top:2px solid rgba(255,199,44,.22);}
+  .foot-note{color:rgba(255,246,224,.55);font-size:11px;letter-spacing:1px;line-height:1.8;}
+  .slogan{display:inline-block;color:var(--mcd-yellow);font-size:15px;font-weight:900;letter-spacing:3px;font-style:italic;-webkit-text-stroke:.6px var(--ink);margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="masthead">
+    <div class="arch" id="arch"></div>
+    <div class="brand-name">麦麦智能管家</div>
+    <div class="brand-sub">MCD · 健康餐推荐</div>
+  </div>
+
+  <div class="goal-wrap">
+    <div class="goal" id="goalLabel">—</div><br>
+    <div class="store-line"><span>📍</span><span id="storeName">—</span></div>
+  </div>
+
+  <div class="combos" id="comboList"></div>
+
+  <div class="card-foot">
+    <div class="slogan">i'm lovin' it</div>
+    <div class="foot-note" id="footNote">—</div>
+  </div>
+</div>
+
+<script id="maimai-data" type="application/json">/*__MAIMAI_DATA__*/null</script>
+<script>
+(function(){
+  var DATA = null;
+  try { DATA = JSON.parse(document.getElementById('maimai-data').textContent); } catch(e){}
+
+  /* 金拱门 */
+  document.getElementById('arch').innerHTML =
+    '<svg viewBox="0 0 122 82" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFDD66"/><stop offset=".55" stop-color="#FFC72C"/><stop offset="1" stop-color="#F0A81E"/>' +
+      '</linearGradient></defs>' +
+      '<path d="M20,76 L20,42 Q20,12 41,12 Q60,12 62,42 L62,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<path d="M60,76 L60,42 Q62,12 81,12 Q102,12 102,42 L102,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<rect x="12" y="72" width="98" height="6" rx="3" fill="#F0A81E" opacity=".75"/>' +
+    '</svg>';
+
+  if (!DATA){ document.getElementById('footNote').textContent = '（数据未注入：请用 render_card.py 生成）'; return; }
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+  function fmtMoney(v){ return (Math.round((+v||0)*100)/100).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
+  function fmtInt(v){ return String(Math.round(+v||0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  $('goalLabel').textContent = DATA.goalLabel || '健康推荐';
+  $('storeName').textContent = (DATA.store && DATA.store.storeName) || '—';
+
+  var wrap = $('comboList');
+  var combos = DATA.combos || [];
+  if (!combos.length){
+    wrap.innerHTML = '<div class="combo"><div class="title" style="opacity:.6">暂无推荐组合</div></div>';
+  } else {
+    wrap.innerHTML = combos.map(function(cb, i){
+      var isBest = (i === 0) || cb.tier === '首选';
+      var items = (cb.items || []).map(function(it){
+        var meta = [];
+        if (typeof it.kcal === 'number') meta.push(fmtInt(it.kcal) + 'kcal');
+        if (typeof it.protein === 'number') meta.push('蛋白' + it.protein + 'g');
+        return '<li><span class="iname">' + esc(it.name) + '</span>' +
+          '<span class="imeta">' + meta.join(' · ') + '</span>' +
+          '<span class="iprice num-font">¥' + fmtMoney(it.price) + '</span></li>';
+      }).join('');
+      var saveBlock = (cb.saving > 0)
+        ? '<span class="save">省 ¥' + fmtMoney(cb.saving) + '</span>'
+        : '<span class="save none">' + esc(cb.couponLabel || '门店价') + '</span>';
+      var origBlock = (cb.originalPrice && cb.originalPrice > cb.finalPrice)
+        ? '<span class="orig num-font">¥' + fmtMoney(cb.originalPrice) + '</span>' : '';
+      return '<div class="combo ' + (isBest?'best':'') + '">' +
+        '<div class="tier">' + esc(cb.tier || '组合') + '</div>' +
+        '<div class="title">' + esc(cb.title || '推荐组合') + '</div>' +
+        (cb.why ? '<div class="why">' + esc(cb.why) + '</div>' : '') +
+        '<ul class="items">' + items + '</ul>' +
+        '<div class="pills">' +
+          '<span class="pill">🔥 合计 <b>' + fmtInt(cb.totalKcal) + '</b> kcal</span>' +
+          '<span class="pill">💪 蛋白 <b>' + (cb.totalProtein||0) + '</b> g</span>' +
+          (cb.couponLabel ? '<span class="pill">🎫 ' + esc(cb.couponLabel) + '</span>' : '') +
+        '</div>' +
+        '<div class="pricerow">' + origBlock +
+          '<span class="final num-font"><small>¥</small>' + fmtMoney(cb.finalPrice) + '</span>' +
+          saveBlock +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  $('footNote').innerHTML = esc(DATA.note || '价格以门店实际结算为准') + '<br>麦麦智能管家 · 生成于 ' + esc(DATA.generatedAt || '—');
+})();
+</script>
+</body>
+</html>

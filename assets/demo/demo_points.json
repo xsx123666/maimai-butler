@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "请求成功（演示数据）",
+  "data": {
+    "accountId": "DEMO0000000001",
+    "availablePoint": "1280",
+    "accumulativePoint": "3560",
+    "currency": "麦享会积分",
+    "currentMouthExpirePoint": "60",
+    "expiredPoint": "0",
+    "frozenPoint": "0",
+    "lastMouthExpirePoint": "40",
+    "nextMouthExpirePoint": "80",
+    "usedPoint": "2280"
+  }
+}

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麦麦拼单账单</title>
+<style>
+  /* ============================================================
+     麦麦智能管家 · 省钱拼单账单卡片模板
+     数据注入：<script id="maimai-data"> 中的 /*__MAIMAI_DATA__*/null
+     ============================================================ */
+  :root{
+    --mcd-red:#DA1A32; --mcd-red-deep:#A3122A; --mcd-red-dark:#7A0E20;
+    --mcd-yellow:#FFC72C; --mcd-yellow-deep:#F5A623;
+    --cream:#FFF6E0; --ink:#1A0A0C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:#150709;}
+  body{
+    display:flex;justify-content:center;padding:28px 16px 40px;
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num-font{font-family:"DIN Alternate","Arial Black","Impact",system-ui,sans-serif;letter-spacing:.5px;}
+  .card{
+    position:relative;width:100%;max-width:460px;border-radius:22px;overflow:hidden;
+    border:3px solid var(--mcd-yellow);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,199,44,.13) 1px, transparent 1.6px) 0 0/18px 18px,
+      linear-gradient(165deg,#B01B33 0%,#8E1226 46%,#5E0A19 100%);
+    box-shadow:0 0 0 7px rgba(26,10,12,.9), 0 26px 70px rgba(0,0,0,.55);
+    animation:cardIn .6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes cardIn{from{transform:translateY(18px) scale(.98)}to{transform:none}}
+
+  .masthead{padding:30px 30px 0;text-align:center;}
+  .arch{width:64px;margin:0 auto 8px;filter:drop-shadow(0 5px 0 rgba(26,10,12,.35));}
+  .brand-name{color:var(--cream);font-size:19px;font-weight:900;letter-spacing:4px;}
+  .brand-sub{margin-top:6px;color:var(--mcd-yellow);font-size:11px;font-weight:700;letter-spacing:3px;}
+
+  .head-line{padding:20px 30px 0;text-align:center;}
+  .big-title{
+    display:inline-block;background:var(--mcd-yellow);color:var(--mcd-red);
+    font-size:24px;font-weight:900;letter-spacing:3px;
+    padding:10px 28px;border-radius:14px;border:3px solid var(--ink);
+    box-shadow:0 5px 0 rgba(26,10,12,.7);transform:rotate(-1deg);
+  }
+  .store-line{
+    margin-top:16px;display:inline-flex;align-items:center;gap:8px;
+    color:rgba(255,246,224,.85);font-size:12.5px;font-weight:600;
+    background:rgba(26,10,12,.32);border:2px solid rgba(255,199,44,.35);
+    border-radius:999px;padding:7px 16px;
+  }
+
+  /* 每人清单 */
+  .people{padding:22px 30px 0;}
+  .person{
+    background:rgba(255,246,224,.07);
+    border:2px solid rgba(255,246,224,.16);
+    border-radius:14px;padding:13px 16px;margin-bottom:10px;
+  }
+  .person .pname{
+    display:flex;align-items:center;gap:8px;
+    color:var(--mcd-yellow);font-size:14px;font-weight:900;letter-spacing:1px;margin-bottom:8px;
+  }
+  .person .pname::before{content:"🧑";font-size:14px;}
+  .person .plist{list-style:none;}
+  .person .plist li{
+    display:flex;justify-content:space-between;gap:10px;
+    color:var(--cream);font-size:13px;font-weight:600;padding:3.5px 0;
+  }
+  .person .plist li span:last-child{color:rgba(255,246,224,.6);flex:none;}
+  .person .psub{
+    margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,246,224,.2);
+    display:flex;justify-content:space-between;
+    color:rgba(255,246,224,.75);font-size:12px;font-weight:700;
+  }
+  .person .psub b{color:var(--mcd-yellow);font-size:14px;}
+
+  /* 账单汇总 */
+  .bill{margin:14px 30px 0;border-radius:16px;padding:18px 18px 16px;
+    background:rgba(26,10,12,.42);border:2px solid var(--mcd-yellow);
+    box-shadow:0 6px 0 rgba(26,10,12,.55);
+  }
+  .bill .row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;
+    color:rgba(255,246,224,.85);font-size:13.5px;font-weight:600;}
+  .bill .row.discount{color:var(--mcd-yellow);}
+  .bill .row.total{
+    margin-top:8px;padding-top:10px;border-top:2px dashed rgba(255,199,44,.4);
+    color:var(--cream);font-size:15px;font-weight:900;
+  }
+  .bill .row.total b{color:var(--mcd-yellow);font-size:22px;}
+
+  .per-person{margin:16px 30px 0;text-align:center;
+    background:linear-gradient(180deg, rgba(255,199,44,.16), rgba(255,199,44,.05));
+    border:2px dashed var(--mcd-yellow);border-radius:16px;padding:16px 14px 18px;
+  }
+  .per-person .pp-lead{color:var(--cream);font-size:13px;font-weight:700;letter-spacing:2px;}
+  .per-person .pp-num{
+    margin-top:6px;color:var(--mcd-yellow);
+    font-size:64px;font-weight:900;line-height:1;
+    -webkit-text-stroke:2.5px var(--ink);
+    text-shadow:5px 6px 0 rgba(26,10,12,.5);
+  }
+  .per-person .pp-num small{font-size:28px;vertical-align:12px;margin-right:4px;-webkit-text-stroke-width:2px;}
+  .per-person .pp-sub{margin-top:10px;color:rgba(255,246,224,.7);font-size:12px;font-weight:600;}
+  .per-person .pp-sub b{color:var(--mcd-yellow);font-weight:900;}
+
+  /* 券 */
+  .coupons{margin:16px 30px 0;}
+  .coupons .ct{color:var(--mcd-yellow);font-size:12px;font-weight:900;letter-spacing:3px;margin-bottom:8px;}
+  .coupon{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,246,224,.08);border:2px solid rgba(255,199,44,.35);
+    border-radius:12px;padding:9px 13px;margin-bottom:8px;
+    color:var(--cream);font-size:12.5px;font-weight:600;
+  }
+  .coupon .csave{margin-left:auto;flex:none;color:var(--mcd-yellow);font-weight:900;font-size:12px;}
+
+  /* 底部 */
+  .card-foot{margin-top:20px;padding:16px 30px 24px;text-align:center;border-top:2px solid rgba(255,199,44,.22);}
+  .foot-note{color:rgba(255,246,224,.55);font-size:11px;letter-spacing:1px;line-height:1.8;}
+  .slogan{display:inline-block;color:var(--mcd-yellow);font-size:15px;font-weight:900;letter-spacing:3px;font-style:italic;-webkit-text-stroke:.6px var(--ink);margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="masthead">
+    <div class="arch" id="arch"></div>
+    <div class="brand-name">麦麦智能管家</div>
+    <div class="brand-sub">MCD · 拼单账单</div>
+  </div>
+
+  <div class="head-line">
+    <div class="big-title">拼单账单 🧾</div><br>
+    <div class="store-line"><span>📍</span><span id="storeName">—</span></div>
+  </div>
+
+  <div class="people" id="peopleList"></div>
+
+  <div class="bill">
+    <div class="row"><span>原价合计</span><span class="num-font" id="billOrig">¥0</span></div>
+    <div class="row discount"><span>🎫 优惠立减</span><span class="num-font" id="billDiscount">-¥0</span></div>
+    <div class="row total"><span>应付总计</span><b class="num-font" id="billFinal">¥0</b></div>
+  </div>
+
+  <div class="per-person">
+    <div class="pp-lead">— 每人 AA —</div>
+    <div class="pp-num num-font"><small>¥</small><span id="perPerson">0</span></div>
+    <div class="pp-sub">共 <b id="peopleCount">0</b> 人 · 已省 <b id="savedTotal">¥0</b></div>
+  </div>
+
+  <div class="coupons" id="couponsWrap">
+    <div class="ct">🎫 本单用到的券</div>
+    <div id="couponList"></div>
+  </div>
+
+  <div class="card-foot">
+    <div class="slogan">i'm lovin' it</div>
+    <div class="foot-note" id="footNote">—</div>
+  </div>
+</div>
+
+<script id="maimai-data" type="application/json">/*__MAIMAI_DATA__*/null</script>
+<script>
+(function(){
+  var DATA = null;
+  try { DATA = JSON.parse(document.getElementById('maimai-data').textContent); } catch(e){}
+
+  document.getElementById('arch').innerHTML =
+    '<svg viewBox="0 0 122 82" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#FFDD66"/><stop offset=".55" stop-color="#FFC72C"/><stop offset="1" stop-color="#F0A81E"/>' +
+      '</linearGradient></defs>' +
+      '<path d="M20,76 L20,42 Q20,12 41,12 Q60,12 62,42 L62,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<path d="M60,76 L60,42 Q62,12 81,12 Q102,12 102,42 L102,76" fill="none" stroke="url(#gold)" stroke-width="15"/>' +
+      '<rect x="12" y="72" width="98" height="6" rx="3" fill="#F0A81E" opacity=".75"/>' +
+    '</svg>';
+
+  if (!DATA){ document.getElementById('footNote').textContent = '（数据未注入：请用 render_card.py 生成）'; return; }
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+  function fmtMoney(v){ return (Math.round((+v||0)*100)/100).toFixed(2).replace(/\.00$/,'').replace(/(\.\d)0$/,'$1'); }
+  function fmtInt(v){ return String(Math.round(+v||0)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  $('storeName').textContent = (DATA.store && DATA.store.storeName) || '—';
+
+  /* 每人清单 */
+  var peopleWrap = $('peopleList');
+  var people = DATA.people || [];
+  peopleWrap.innerHTML = people.map(function(p){
+    var items = (p.items || []).map(function(it){
+      return '<li><span>' + esc(it) + '</span></li>';
+    }).join('');
+    return '<div class="person">' +
+      '<div class="pname">' + esc(p.name || '麦友') + '</div>' +
+      '<ul class="plist">' + items + '</ul>' +
+      '<div class="psub"><span>小计</span><b class="num-font">¥' + fmtMoney(p.subtotal) + '</b></div>' +
+    '</div>';
+  }).join('');
+
+  /* 账单 */
+  var bill = DATA.bill || {};
+  $('billOrig').textContent = '¥' + fmtMoney(bill.originalPrice);
+  $('billDiscount').textContent = '-' + '¥' + fmtMoney(bill.discount);
+  $('billFinal').textContent = '¥' + fmtMoney(bill.finalPrice);
+  $('perPerson').textContent = fmtMoney(bill.perPerson);
+  $('peopleCount').textContent = DATA.peopleCount || people.length || 0;
+  $('savedTotal').textContent = '¥' + fmtMoney(bill.discount);
+
+  /* 券 */
+  var coupons = DATA.coupons || [];
+  var cWrap = $('couponsWrap');
+  if (!coupons.length){ cWrap.style.display = 'none'; }
+  else {
+    $('couponList').innerHTML = coupons.map(function(c){
+      return '<div class="coupon"><span>🎟️</span><span>' + esc(c.title) + '</span>' +
+        (c.save ? '<span class="csave">' + esc(c.save) + '</span>' : '') + '</div>';
+    }).join('');
+  }
+
+  $('footNote').innerHTML = esc(DATA.note || 'AA 金额已按人数平均') + '<br>麦麦智能管家 · 生成于 ' + esc(DATA.generatedAt || '—');
+})();
+</script>
+</body>
+</html>
